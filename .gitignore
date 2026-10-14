@@ -1,0 +1,21 @@
+# 构建产物
+frontend/dist/
+frontend/node_modules/
+backend/lan-share.exe
+backend/cmd/lan-share/web/*
+!backend/cmd/lan-share/web/index.html
+release/
+
+# 运行时数据（含用户数据库与上传文件，不入库）
+backend/backend/
+backend/data/
+backend/storage/
+backend/shared-folders/
+backend/trash/
+*.db
+
+# IDE / 系统
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

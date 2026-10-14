@@ -1,0 +1,63 @@
+package main
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+func (a *app) registerRoutes(router *gin.Engine) {
+	api := router.Group("/api")
+	api.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+	api.GET("/setup/status", a.setupStatus)
+	api.POST("/setup/admin", a.setupAdmin)
+	api.POST("/auth/login", a.login)
+	api.POST("/auth/logout", a.authRequired(false), a.logout)
+	api.GET("/auth/me", a.authRequired(false), a.me)
+	api.GET("/files", a.authRequired(false), a.listFiles)
+	api.POST("/files/upload", a.authRequired(false), a.uploadFile)
+	api.GET("/shares", a.authRequired(false), a.listShares)
+	api.POST("/shares", a.authRequired(true), a.createShare)
+	api.GET("/shares/:id/download", a.authRequired(false), a.downloadShare)
+	api.GET("/shared-folders", a.authRequired(false), a.listSharedFolders)
+	api.GET("/shared-folders/:id/items", a.authRequired(false), a.listSharedFolderItems)
+	api.POST("/shared-folders/:id/upload", a.authRequired(false), a.uploadSharedFolderItem)
+	api.GET("/shared-folders/:id/download", a.authRequired(false), a.downloadSharedFolderItem)
+	api.POST("/shared-folders/:id/mkdir", a.authRequired(false), a.mkdirSharedFolderItem)
+	api.DELETE("/shared-folders/:id/items", a.authRequired(false), a.deleteSharedFolderItem)
+
+	admin := api.Group("/admin")
+	admin.Use(a.authRequired(true))
+	admin.GET("/overview", a.overview)
+	admin.GET("/users", a.listUsers)
+	admin.POST("/users", a.createUser)
+	admin.POST("/users/batch-generate", a.batchGenerateUsers)
+	admin.POST("/users/batch-action", a.batchUserAction)
+	admin.GET("/users/export-latest-batch", a.exportLatestBatch)
+	admin.POST("/users/import", a.importUsers)
+	admin.GET("/users/export", a.exportUsers)
+	admin.POST("/users/:id/reset-password", a.resetUserPassword)
+	admin.GET("/users/:id/permissions", a.getUserPermissions)
+	admin.PUT("/users/:id/permissions", a.updateUserPermissions)
+	admin.GET("/users/:id/bindings", a.getUserBindings)
+	admin.PUT("/users/:id/bindings", a.updateUserBindings)
+	admin.POST("/users/:id/disable", a.disableUser)
+	admin.POST("/users/:id/enable", a.enableUser)
+	admin.GET("/roles", a.listRoles)
+	admin.POST("/roles", a.createRole)
+	admin.PUT("/roles/:id", a.updateRole)
+	admin.DELETE("/roles/:id", a.deleteRole)
+	admin.GET("/ip-rules", a.listIPRules)
+	admin.POST("/ip-rules", a.createIPRule)
+	admin.GET("/devices", a.listDevices)
+	admin.POST("/devices/:id/block", a.blockDevice)
+	admin.GET("/audit-logs", a.listAuditLogs)
+	admin.GET("/transfers", a.listTransfers)
+	admin.POST("/shared-folders", a.createSharedFolder)
+	admin.DELETE("/files/:id", a.deleteManagedFile)
+	admin.GET("/trash", a.listTrashItems)
+	admin.POST("/trash/:id/restore", a.restoreTrashItem)
+	admin.DELETE("/trash/:id/purge", a.purgeTrashItem)
+}
